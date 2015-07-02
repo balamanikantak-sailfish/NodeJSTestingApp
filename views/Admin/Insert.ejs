@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='stylesheet' href='/stylesheets/bootstrap-combined.min.css' />
+
+  <script type="text/javascript" src="/javascripts/angular.min.js"></script>
+  <script type="text/javascript" src="/javascripts/bootstrap.js"></script>
+</head>
+<script type="text/javascript" >
+  var app = angular.module('myapp', ['UserValidation']);
+
+  angular.module('UserValidation', []).directive('validPasswordC', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, elm, attrs, ctrl) {
+        ctrl.$parsers.unshift(function (viewValue, $scope) {
+          var noMatch = viewValue != scope.myForm.password.$viewValue
+          ctrl.$setValidity('noMatch', !noMatch)
+        })
+      }
+    }
+  })
+</script>
+<body>
+
+<h3 class="label-success" style="width:20%;color:white;text-align: center"><%= title %></h3>
+
+<div ng-app="myapp">
+  <form name="myForm" method="post" action="/registration">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" ng-model="formData.email" style="width: 30%" required/>
+    <span ng-show="myForm.email.$error.required && myForm.email.$dirty">required</span>
+    <span ng-show="!myForm.email.$error.required && myForm.email.$error.email && myForm.email.$dirty">invalid email</span>
+    <br />
+    <label for="email">Name</label>
+    <input type="text" id="name" name="name" ng-model="formData.name" style="width: 30%" required/>
+    <span ng-show="myForm.name.$error.required && myForm.name.$dirty">required</span>
+    <br />
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" ng-model="formData.username" ng-minlength="5" ng-maxlength="20" style="width: 30%" ng-pattern="/^[A-z][A-z0-9]*$/" required  />
+    <span ng-show="myForm.username.$error.required && myForm.username.$dirty">required</span>
+    <span ng-show="!myForm.username.$error.minLength && !myForm.username.$error.maxLength && myForm.username.$error.pattern && myForm.username.$dirty">Must start with a letter, and contain letters &amp; numbers only.</span>
+    <span ng-show="!myForm.username.$error.required && (myForm.username.$error.minlength || myForm.username.$error.maxlength) && myForm.username.$dirty">Username ust be between 5 and 20 characters.</span>
+    <br />
+
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" ng-model="formData.password" ng-minlength="8" ng-maxlength="20" style="width: 30%" ng-pattern="/(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z])/" required  />
+    <span ng-show="myForm.password.$error.required && myForm.password.$dirty">required</span>
+    <span ng-show="!myForm.password.$error.required && (myForm.password.$error.minlength || myForm.password.$error.maxlength) && myForm.password.$dirty">Passwords must be between 8 and 20 characters.</span>
+    <span ng-show="!myForm.password.$error.required && !myForm.password.$error.minlength && !myForm.password.$error.maxlength && myForm.password.$error.pattern && myForm.password.$dirty">Must contain one lower &amp; uppercase letter, and one non-alpha character (a number or a symbol.)</span>
+    <br />
+
+
+    <label for="password_c">Confirm Password</label>
+    <input type="password" id="password_c" name="password_c" ng-model="formData.password_c" style="width: 30%" valid-password-c required  />
+    <span ng-show="myForm.password_c.$error.required && myForm.password_c.$dirty">Please confirm your password.</span>
+    <span ng-show="!myForm.password_c.$error.required && myForm.password_c.$error.noMatch && myForm.password.$dirty">Passwords do not match.</span>
+    <br />
+
+    <button type="submit" class="btn btn-info" ng-disabled="!myForm.$valid">Submit</button>
+  </form>
+</div>
+</body>
+</html>
+
